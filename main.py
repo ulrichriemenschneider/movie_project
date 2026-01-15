@@ -1,6 +1,7 @@
 import random
 import movie_storage_sql as storage
 import data_fetcher
+import website_generator
 
 def main():
     print("\n********** My Movies Database **********")
@@ -17,17 +18,18 @@ def press_enter():
 def menu():
     """printing the menu and call the enter_choice-function"""
     print("\nMenu:")
-    print("1. List movies")
-    print("2. Add movie")
-    print("3. Delete movie")
-    print("4. Update movie")
-    print("5. Stats")
-    print("6. Random movie")
-    print("7. Search movie")
-    print("8. Movies sorted by rating")
-    print("9. Movies sorted by year")
+    print("1.  List movies")
+    print("2.  Add movie")
+    print("3.  Delete movie")
+    print("4.  Update movie")
+    print("5.  Stats")
+    print("6.  Random movie")
+    print("7.  Search movie")
+    print("8.  Movies sorted by rating")
+    print("9.  Movies sorted by year")
     print("10. Filter movies")
-    print("0. Exit")
+    print("11. Generate website")
+    print("0.  Exit")
     print()
     enter_choice()
 
@@ -52,7 +54,8 @@ def enter_choice():
         7: search_movie,
         8: sorted_by_rating,
         9: sorted_by_year,
-        10: filter_movies
+        10: filter_movies,
+        11: website_generator.generate_website
     }
     
     while True:
@@ -62,9 +65,9 @@ def enter_choice():
                 menu_actions[choice]()
                 break  # Exit loop after executing choice (exit() will terminate before this)
             else:
-                print("Invalid choice. Please enter a number between 0 and 10.")
+                print("Invalid choice. Please enter a number between 0 and 11.")
         except ValueError:
-            print("Invalid input. Please enter a number between 0 and 10.")
+            print("Invalid input. Please enter a number between 0 and 11.")
 
 
 def enter_rating():
@@ -124,8 +127,14 @@ def command_add_movie():
         needed_data = data_fetcher.get_needed_data_from_dict(data_dict)
         if needed_data["Error"] is None:
             new_title = needed_data["Title"]
-            year = needed_data["Year"]
-            rating = needed_data["imdbRating"]
+            try:
+                year = int(needed_data["Year"])
+            except:
+                year = 0
+            try:
+                rating = float(needed_data["imdbRating"])
+            except:
+                rating = 0
             poster_url = needed_data["Poster"]
             storage.add_movie(new_title, year, rating, poster_url)
             # print(f"\nMovie {title} successfully added\n")
@@ -165,11 +174,17 @@ def average_rating():
     movies = storage.list_movies()
     if len(movies) == 0:
         return 0
-    
+    without_rating = 0
     total = 0
     for info in movies.values():
-        total += info['rating']
-    return total / len(movies)
+        if info['rating'] != 0:
+            total += info['rating']
+        else:
+            without_rating += 1
+    if (len(movies) - without_rating) == 0:
+        return 0
+    else:
+        return total / (len(movies) - without_rating)
 
 
 def more_then_one(rating):
@@ -196,7 +211,7 @@ def best_movie():
     movies = storage.list_movies()
     best_rating = 0
     for title, info in movies.items():
-        if info['rating'] > best_rating:
+        if info['rating'] != 0 and info['rating'] > best_rating:
             best_rating = info['rating']
     
     best_movies = more_then_one(best_rating)
@@ -211,7 +226,7 @@ def worst_movie():
     movies = storage.list_movies()
     worst_rating = 10
     for title, info in movies.items():
-        if info['rating'] < worst_rating:
+        if info['rating'] != 0 and info['rating'] < worst_rating:
             worst_rating = info['rating']
     
     worst_movies = more_then_one(worst_rating)
@@ -225,11 +240,16 @@ def median_rating():
     
     movies = storage.list_movies()
     rating_list = []
+    without_rating = 0
     for info in movies.values():
-        rating_list.append(info['rating'])
+        if info['rating'] != 0:
+            rating_list.append(info['rating'])
+        else:
+            without_rating += 1
     rating_list.sort()
-    
-    if len(movies) % 2 == 0:
+    if (len(movies) - without_rating) <= 2:
+        return 0
+    elif (len(movies) - without_rating) % 2 == 0:
         return (
             rating_list[len(rating_list) // 2 - 1] + rating_list[len(rating_list) // 2]
         ) / 2
