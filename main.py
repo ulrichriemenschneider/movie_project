@@ -1,5 +1,4 @@
 import random
-# import movie_storage
 import movie_storage_sql as storage
 
 def main():
@@ -155,8 +154,8 @@ def command_update_movie():
 
 
 def average_rating():
-    """returns the average rating of all movies in the movies-dictionary"""
-    movies = movie_storage.get_movies()
+    """returns the average rating of all movies in the database"""
+    movies = storage.list_movies()
     if len(movies) == 0:
         return 0
     
@@ -168,7 +167,7 @@ def average_rating():
 
 def more_then_one(rating):
     """returns a dictionary with movie-name and rating for all movies with a specific rating"""
-    movies = movie_storage.get_movies()
+    movies = storage.list_movies()
     movies_dict = {}
     for title, info in movies.items():
         if info['rating'] == rating:
@@ -178,16 +177,16 @@ def more_then_one(rating):
 
 def is_empty():
     """checks if the database is empty"""
-    movies = movie_storage.get_movies()
+    movies = storage.list_movies()
     return len(movies) == 0
 
 
 def best_movie():
-    """returns the name with rating of the best rated movie from the movies-dictionary"""
+    """returns the name with rating of the best rated movie from the database"""
     if is_empty():
         return {"EMPTY DATABASE": 0}
     
-    movies = movie_storage.get_movies()
+    movies = storage.list_movies()
     best_rating = 0
     for title, info in movies.items():
         if info['rating'] > best_rating:
@@ -198,11 +197,11 @@ def best_movie():
 
 
 def worst_movie():
-    """returns the name with rating of the worst rated movie from the movies-dictionary"""
+    """returns the name with rating of the worst rated movie from the database"""
     if is_empty():
         return {"EMPTY DATABASE": 0}
     
-    movies = movie_storage.get_movies()
+    movies = storage.list_movies()
     worst_rating = 10
     for title, info in movies.items():
         if info['rating'] < worst_rating:
@@ -213,11 +212,11 @@ def worst_movie():
 
 
 def median_rating():
-    """returns the movie with the middle score of the movies-dictionary, if its a even number of movies it returns the average of the two middle score movies"""
+    """returns the movie with the middle score of the database, if its a even number of movies it returns the average of the two middle score movies"""
     if is_empty():
         return 0
     
-    movies = movie_storage.get_movies()
+    movies = storage.list_movies()
     rating_list = []
     for info in movies.values():
         rating_list.append(info['rating'])
@@ -232,7 +231,7 @@ def median_rating():
 
 
 def stats():
-    """lists some stats about the movie-dictionary"""
+    """lists some stats about the database"""
     print()
     print(f"Average rating: {average_rating():.1f}")
     print(f"Median rating: {median_rating():.1f}")
@@ -246,12 +245,12 @@ def stats():
 
 
 def random_movie():
-    """print a random movie with rating from the movies-dictionary"""
+    """print a random movie with rating from the database"""
     if is_empty():
         print("\nEMPTY DATABASE")
         press_enter()
     else:
-        movies = movie_storage.get_movies()
+        movies = storage.list_movies()
         random_title = random.choice(list(movies.keys()))
         movie_info = movies[random_title]
         print(
@@ -261,8 +260,8 @@ def random_movie():
 
 
 def search_movie():
-    """search option for a film or films in the movies-dictionary"""
-    movies = movie_storage.get_movies()
+    """search option for a film or films in the database"""
+    movies = storage.list_movies()
     
     search_term = input("Enter part of movie name: ").strip()
     if not search_term:
@@ -281,8 +280,8 @@ def search_movie():
 
 
 def sorted_by_rating():
-    """prints all films from the movies-dictionary, sorted by rating."""
-    movies = movie_storage.get_movies()
+    """prints all films from the database, sorted by rating."""
+    movies = storage.list_movies()
     
     print()
     sorted_list = sorted(movies.items(), key=lambda x: x[1]['rating'], reverse=True)
@@ -293,8 +292,8 @@ def sorted_by_rating():
 
 
 def sorted_by_year():
-    """prints all films from the movies-dictionary, sorted by year."""
-    movies = movie_storage.get_movies()
+    """prints all films from the database, sorted by year."""
+    movies = storage.list_movies()
     
     # Ask user for sort order
     while True:
@@ -317,7 +316,7 @@ def sorted_by_year():
 
 def filter_movies():
     """filters movies based on minimum rating, start year, and end year"""
-    movies = movie_storage.get_movies()
+    movies = storage.list_movies()
     
     print("\nFilter Movies")
     print("(Leave any field blank to skip that filter)")
