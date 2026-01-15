@@ -1,5 +1,6 @@
 import random
-import movie_storage
+# import movie_storage
+import movie_storage_sql as storage
 
 def main():
     print("\n********** My Movies Database **********")
@@ -42,10 +43,10 @@ def enter_choice():
     # Dispatch table: maps menu choices to functions
     menu_actions = {
         0: exit_program,
-        1: list_movies,
-        2: add_movie,
-        3: delete_movie,
-        4: update_movie,
+        1: command_list_movies,
+        2: command_add_movie,
+        3: command_delete_movie,
+        4: command_update_movie,
         5: stats,
         6: random_movie,
         7: search_movie,
@@ -102,18 +103,18 @@ def enter_title(prompt="Enter movie name: "):
             print("Movie title cannot be empty. Please try again.")
 
 
-def list_movies():
-    """lists all movies of the movies-dictionary"""
-    movies = movie_storage.get_movies()
+def command_list_movies():
+    """Retrieve and display all movies from the database"""
+    movies = storage.list_movies()
     print(f"\n{len(movies)} movies in total")
     for title, info in movies.items():
         print(f"{title} ({info['year']}): {info['rating']}")
     press_enter()
 
 
-def add_movie():
-    """adds a new movie with rating to the movies-dictionary"""
-    movies = movie_storage.get_movies()
+def command_add_movie():
+    """adds a new movie with rating to the database"""
+    movies = storage.list_movies()
     
     title = enter_title("Enter new movie name: ")
     if title in movies:
@@ -121,32 +122,32 @@ def add_movie():
     else:
         year = enter_year()
         rating = enter_rating()
-        movie_storage.add_movie(title, year, rating)
+        storage.add_movie(title, year, rating)
         print(f"\nMovie {title} successfully added\n")
     press_enter()
 
 
-def delete_movie():
-    """delete a movie from the movies-dictionary"""
-    movies = movie_storage.get_movies()
+def command_delete_movie():
+    """delete a movie from the database"""
+    movies = storage.list_movies()
     
     title = enter_title("Enter movie name to delete: ")
     if title in movies:
-        movie_storage.delete_movie(title)
+        storage.delete_movie(title)
         print(f"Movie {title} successfully deleted")
     else:
         print(f"Movie {title} doesn't exist")
     press_enter()
 
 
-def update_movie():
-    """update the rating of a movie in the movies-dictionary"""
-    movies = movie_storage.get_movies()
+def command_update_movie():
+    """update the rating of a movie in the database"""
+    movies = storage.list_movies()
     
     title = enter_title("Enter movie name: ")
     if title in movies:
         rating = enter_rating()
-        movie_storage.update_movie(title, rating)
+        storage.update_movie(title, rating)
         print(f"Movie {title} successfully updated")
     else:
         print(f"Movie {title} doesn't exist!")
