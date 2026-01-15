@@ -5,3 +5,4 @@ data.json
 movie_storage.py
 .env
 data/movies.db
+movies.html

@@ -37,11 +37,11 @@ def serialize_movie(title, info):
     except KeyError:
         pass
     try:
-        output += f'<div class="movie-title">{title}"</div><br/>\n'
+        output += f'<div class="movie-title">{title}</div><br/>\n'
     except KeyError:
         pass
     try:
-        output += f'<div class="movie-year">{info["year"]}"</div><br/>\n'
+        output += f'<div class="movie-year">{info["year"]}</div><br/>\n'
     except KeyError:
         pass
     output += '</div>\n'
