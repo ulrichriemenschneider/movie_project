@@ -1,5 +1,6 @@
 import random
 import movie_storage_sql as storage
+import data_fetcher
 
 def main():
     print("\n********** My Movies Database **********")
@@ -119,21 +120,27 @@ def command_add_movie():
     if title in movies:
         print(f'The movie "{title}" is already in the database')
     else:
-        year = enter_year()
-        rating = enter_rating()
-        storage.add_movie(title, year, rating)
-        print(f"\nMovie {title} successfully added\n")
+        data_dict = data_fetcher.fetch_data(title)
+        needed_data = data_fetcher.get_needed_data_from_dict(data_dict)
+        if needed_data["Error"] is None:
+            new_title = needed_data["Title"]
+            year = needed_data["Year"]
+            rating = needed_data["imdbRating"]
+            poster_url = needed_data["Poster"]
+            storage.add_movie(new_title, year, rating, poster_url)
+            # print(f"\nMovie {title} successfully added\n")
+        else:
+            print(needed_data["Error"])
     press_enter()
 
 
 def command_delete_movie():
     """delete a movie from the database"""
     movies = storage.list_movies()
-    
     title = enter_title("Enter movie name to delete: ")
     if title in movies:
         storage.delete_movie(title)
-        print(f"Movie {title} successfully deleted")
+        # print(f"Movie {title} successfully deleted")
     else:
         print(f"Movie {title} doesn't exist")
     press_enter()
@@ -147,7 +154,7 @@ def command_update_movie():
     if title in movies:
         rating = enter_rating()
         storage.update_movie(title, rating)
-        print(f"Movie {title} successfully updated")
+        # print(f"Movie {title} successfully updated")
     else:
         print(f"Movie {title} doesn't exist!")
     press_enter()

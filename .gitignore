@@ -3,3 +3,4 @@ __pycache__
 movies.db
 data.json
 movie_storage.py
+.env
