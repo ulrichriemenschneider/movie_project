@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine, text
 
+import users_menu
+
 # Define the database URL
 DB_URL = "sqlite:///data/movies.db"
 
@@ -45,7 +47,7 @@ def create_new_user():
         name = input("Enter new user name (at least 3 characters): ").strip()
         if name not in users and len(name) >= 3:
             add_user(name)
-            break
+            users_menu.users_menu()
         else:
             print(f'The name "{name}" is already in the database or your name is to short, try again')
 
@@ -56,11 +58,3 @@ def get_users_list():
     for user in users_in_db:
         users.append(user[1])
     return users
-
-
-def main():
-    #create_new_user()
-    print(get_users_list())
-
-if __name__ == "__main__":
-    main()
