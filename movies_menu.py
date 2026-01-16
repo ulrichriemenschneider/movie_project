@@ -274,7 +274,7 @@ def stats(user_name):
 
 def random_movie(user_name):
     """print a random movie with rating from the database"""
-    if is_empty():
+    if is_empty(user_name):
         print("\nEMPTY DATABASE")
         press_enter(user_name)
     else:
