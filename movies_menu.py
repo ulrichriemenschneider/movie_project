@@ -261,12 +261,12 @@ def median_rating(user_name):
 def stats(user_name):
     """lists some stats about the database"""
     print()
-    print(f"Average rating: {average_rating():.1f}")
-    print(f"Median rating: {median_rating():.1f}")
-    best = best_movie()
+    print(f"Average rating: {average_rating(user_name):.1f}")
+    print(f"Median rating: {median_rating(user_name):.1f}")
+    best = best_movie(user_name)
     for name, rating in best.items():
         print(f"Best movie: {name}, {rating}")
-    worst = worst_movie()
+    worst = worst_movie(user_name)
     for name, rating in worst.items():
         print(f"Worst movie: {name}, {rating}")
     press_enter(user_name)
