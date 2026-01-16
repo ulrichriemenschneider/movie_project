@@ -1,13 +1,14 @@
 import random
 import movie_storage_sql as storage
 import data_fetcher
+import users_menu
 import website_generator
 
-def press_enter():
+def press_enter(user_name):
     """last part of almost every function... stops the prompt until user presses enter"""
     print()
     input("Press enter to continue")
-    menu()
+    menu(user_name)
 
 
 def menu(user_name):
@@ -24,17 +25,18 @@ def menu(user_name):
     print("9.  Movies sorted by year")
     print("10. Filter movies")
     print("11. Generate website")
+    print("12. Change user")
     print("0.  Exit")
     print()
-    enter_choice()
+    enter_choice(user_name)
 
 
-def enter_choice():
+def enter_choice(user_name):
     """prompt and calls the specific function"""
 
-    def exit_program():
+    def exit_program(user_name):
         """exits the program with a goodbye message"""
-        print("\nThank you for using My Movies Database. Goodbye!")
+        print(f"\nThank you {user_name} for using My Movies Database. Goodbye!")
         exit()
 
     # Dispatch table: maps menu choices to functions
@@ -50,20 +52,21 @@ def enter_choice():
         8: sorted_by_rating,
         9: sorted_by_year,
         10: filter_movies,
-        11: website_generator.generate_website
+        11: website_generator.generate_website,
+        12: users_menu.users_menu
     }
-
+    max_index = len(menu_actions) - 1
     while True:
         try:
-            choice = int(input("Enter choice (0-10): "))
+            choice = int(input(f"Enter choice (0-{max_index}): "))
             if choice in menu_actions:
-                menu_actions[choice]()
+                menu_actions[choice](user_name)
                 break  # Exit loop after executing choice (exit() will terminate before this)
             else:
                 print(
-                    "Invalid choice. Please enter a number between 0 and 11.")
+                    f"Invalid choice. Please enter a number between 0 and {max_index}.")
         except ValueError:
-            print("Invalid input. Please enter a number between 0 and 11.")
+            print(f"Invalid input. Please enter a number between 0 and {max_index}.")
 
 
 def enter_rating():
@@ -103,18 +106,18 @@ def enter_title(prompt="Enter movie name: "):
             print("Movie title cannot be empty. Please try again.")
 
 
-def command_list_movies():
+def command_list_movies(user_name):
     """Retrieve and display all movies from the database"""
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
     print(f"\n{len(movies)} movies in total")
     for title, info in movies.items():
         print(f"{title} ({info['year']}): {info['rating']}")
-    press_enter()
+    press_enter(user_name)
 
 
-def command_add_movie():
+def command_add_movie(user_name):
     """adds a new movie with rating to the database"""
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
 
     title = enter_title("Enter new movie name: ")
     if title in movies:
@@ -133,44 +136,43 @@ def command_add_movie():
             except:
                 rating = 0
             poster_url = needed_data["Poster"]
-            storage.add_movie(new_title, year, rating, poster_url)
+            storage.add_movie(new_title, year, rating, poster_url, user_name)
             # print(f"\nMovie {title} successfully added\n")
         else:
             print(needed_data["Error"])
-    press_enter()
+    press_enter(user_name)
 
 
-def command_delete_movie():
+def command_delete_movie(user_name):
     """delete a movie from the database"""
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
     title = enter_title("Enter movie name to delete: ")
     if title in movies:
-        storage.delete_movie(title)
+        storage.delete_movie(title, user_name)
         # print(f"Movie {title} successfully deleted")
     else:
         print(f"Movie {title} doesn't exist")
-    press_enter()
+    press_enter(user_name)
 
 
-def command_update_movie():
+def command_update_movie(user_name):
     """update the rating of a movie in the database"""
-    movies = storage.list_movies()
-
+    movies = storage.list_movies(user_name)
     title = enter_title("Enter movie name: ")
     if title in movies:
         rating = enter_rating()
-        storage.update_movie(title, rating)
-        # print(f"Movie {title} successfully updated")
+        storage.update_movie(title, rating, user_name)
     else:
         print(f"Movie {title} doesn't exist!")
-    press_enter()
+    press_enter(user_name)
 
 
-def average_rating():
+def average_rating(user_name):
     """returns the average rating of all movies in the database"""
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
     if len(movies) == 0:
         return 0
+
     without_rating = 0
     total = 0
     for info in movies.values():
@@ -184,28 +186,29 @@ def average_rating():
         return total / (len(movies) - without_rating)
 
 
-def more_then_one(rating):
+def more_then_one(rating, user_name):
     """returns a dictionary with movie-name and rating for all movies with a specific rating"""
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
     movies_dict = {}
     for title, info in movies.items():
         if info['rating'] == rating:
             movies_dict[title] = info['rating']
+
     return movies_dict
 
 
-def is_empty():
+def is_empty(user_name):
     """checks if the database is empty"""
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
     return len(movies) == 0
 
 
-def best_movie():
+def best_movie(user_name):
     """returns the name with rating of the best rated movie from the database"""
     if is_empty():
         return {"EMPTY DATABASE": 0}
 
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
     best_rating = 0
     for title, info in movies.items():
         if info['rating'] != 0 and info['rating'] > best_rating:
@@ -215,12 +218,12 @@ def best_movie():
     return best_movies
 
 
-def worst_movie():
+def worst_movie(user_name):
     """returns the name with rating of the worst rated movie from the database"""
     if is_empty():
         return {"EMPTY DATABASE": 0}
 
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
     worst_rating = 10
     for title, info in movies.items():
         if info['rating'] != 0 and info['rating'] < worst_rating:
@@ -230,12 +233,12 @@ def worst_movie():
     return worst_movies
 
 
-def median_rating():
+def median_rating(user_name):
     """returns the movie with the middle score of the database, if its a even number of movies it returns the average of the two middle score movies"""
     if is_empty():
         return 0
 
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
     rating_list = []
     without_rating = 0
     for info in movies.values():
@@ -255,7 +258,7 @@ def median_rating():
         return rating_list[len(rating_list) // 2]
 
 
-def stats():
+def stats(user_name):
     """lists some stats about the database"""
     print()
     print(f"Average rating: {average_rating():.1f}")
@@ -266,27 +269,27 @@ def stats():
     worst = worst_movie()
     for name, rating in worst.items():
         print(f"Worst movie: {name}, {rating}")
-    press_enter()
+    press_enter(user_name)
 
 
-def random_movie():
+def random_movie(user_name):
     """print a random movie with rating from the database"""
     if is_empty():
         print("\nEMPTY DATABASE")
-        press_enter()
+        press_enter(user_name)
     else:
-        movies = storage.list_movies()
+        movies = storage.list_movies(user_name)
         random_title = random.choice(list(movies.keys()))
         movie_info = movies[random_title]
         print(
             f"\nYour movie for tonight: {random_title} ({movie_info['year']}), it's rated {movie_info['rating']}"
         )
-        press_enter()
+        press_enter(user_name)
 
 
-def search_movie():
+def search_movie(user_name):
     """search option for a film or films in the database"""
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
 
     search_term = input("Enter part of movie name: ").strip()
     if not search_term:
@@ -301,24 +304,24 @@ def search_movie():
                 found = True
         if not found:
             print(f"No movies found matching '{search_term}'.")
-    press_enter()
+    press_enter(user_name)
 
 
-def sorted_by_rating():
+def sorted_by_rating(user_name):
     """prints all films from the database, sorted by rating."""
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
 
     print()
     sorted_list = sorted(movies.items(), key=lambda x: x[1]['rating'],
                          reverse=True)
     for title, info in sorted_list:
         print(f"{title} ({info['year']}): {info['rating']}")
-    press_enter()
+    press_enter(user_name)
 
 
-def sorted_by_year():
+def sorted_by_year(user_name):
     """prints all films from the database, sorted by year."""
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
 
     # Ask user for sort order
     while True:
@@ -338,12 +341,12 @@ def sorted_by_year():
                          reverse=reverse_order)
     for title, info in sorted_list:
         print(f"{title} ({info['year']}): {info['rating']}")
-    press_enter()
+    press_enter(user_name)
 
 
-def filter_movies():
+def filter_movies(user_name):
     """filters movies based on minimum rating, start year, and end year"""
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_name)
 
     print("\nFilter Movies")
     print("(Leave any field blank to skip that filter)")
@@ -424,4 +427,4 @@ def filter_movies():
     else:
         print("No movies match the specified criteria.")
 
-    press_enter()
+    press_enter(user_name)

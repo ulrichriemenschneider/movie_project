@@ -47,7 +47,7 @@ def create_new_user():
         name = input("Enter new user name (at least 3 characters): ").strip()
         if name not in users and len(name) >= 3:
             add_user(name)
-            users_menu.users_menu()
+            users_menu.users_menu(name)
         else:
             print(f'The name "{name}" is already in the database or your name is to short, try again')
 

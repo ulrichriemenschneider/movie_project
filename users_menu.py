@@ -2,7 +2,7 @@ import user_storage_sql
 import movies_menu
 
 
-def users_menu():
+def users_menu(user_name):
     """printing the menu and call the enter_choice-function"""
     users_in_db = user_storage_sql.get_users_list()
     max_index = len(users_in_db) + 1
@@ -43,9 +43,3 @@ def enter_choice(max_index, users_in_db):
                     f"Invalid choice. Please enter a number between 0 and {max_index}.")
         except ValueError:
             print(f"Invalid input. Please enter a number between 0 and {max_index}.")
-
-def main():
-    users_menu()
-
-if __name__ == "__main__":
-    main()
