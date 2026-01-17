@@ -11,7 +11,7 @@ with engine.connect() as connection:
     connection.execute(text("""
         CREATE TABLE IF NOT EXISTS movies (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT UNIQUE NOT NULL,
+            title TEXT NOT NULL,
             year INTEGER NOT NULL,
             rating REAL NOT NULL,
             poster_url TEXT NOT NULL,
